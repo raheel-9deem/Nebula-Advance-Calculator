@@ -1,0 +1,4 @@
+{"engine":"v1.0","status":"ok"}
+---
+{"expression":"5+5","mode":"RAD","result":"10","success":true}
+

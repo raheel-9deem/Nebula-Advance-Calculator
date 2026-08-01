@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nebula · Advanced Scientific Calculator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;600&family=Outfit:wght@300;400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+<!-- animated aurora background -->
+<div class="aurora">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+<canvas id="particles" class="particles"></canvas>
+
+<main class="calc-shell">
+  <!-- Header -->
+  <header class="calc-header">
+    <div class="brand">
+      <div class="brand-mark">&sum;</div>
+      <div>
+        <h1>NEBULA</h1>
+        <p class="tag">Advanced Scientific Calculator</p>
+      </div>
+    </div>
+    <div class="mode-switch" role="group" aria-label="Angle mode">
+      <button id="modeDeg" class="mode-btn active" data-deg="true">DEG</button>
+      <button id="modeRad" class="mode-btn" data-deg="false">RAD</button>
+    </div>
+  </header>
+
+  <!-- Display -->
+  <section class="display" aria-live="polite">
+    <div class="display-expression" id="expr">0</div>
+    <div class="display-result" id="result">&nbsp;</div>
+    <div id="fmtResult" class="format-result">&nbsp;</div>
+  </section>
+
+  <!-- Format bar -->
+  <section class="format-bar" aria-label="Number formats">
+    <button class="fmt-key" data-format="dms">DMS</button>
+    <button class="fmt-key" data-format="frac">FRAC</button>
+    <button class="fmt-key" data-format="hex">HEX</button>
+    <button class="fmt-key" data-format="oct">OCT</button>
+    <button class="fmt-key" data-format="bin">BIN</button>
+    <button class="fmt-key" data-format="roman">ROMAN</button>
+  </section>
+
+  <!-- Keypad -->
+  <section class="keypad">
+    <!-- ===== Scientific pad (5 columns) ===== -->
+    <div class="sci-pad">
+      <!-- Trig -->
+      <button class="key func" data-insert="sin(">sin</button>
+      <button class="key func" data-insert="cos(">cos</button>
+      <button class="key func" data-insert="tan(">tan</button>
+      <button class="key func" data-insert="sinh(">sinh</button>
+      <button class="key func" data-insert="cosh(">cosh</button>
+
+      <!-- Inverse trig -->
+      <button class="key inv" data-insert="asin(">sin&#8315;&sup1;</button>
+      <button class="key inv" data-insert="acos(">cos&#8315;&sup1;</button>
+      <button class="key inv" data-insert="atan(">tan&#8315;&sup1;</button>
+      <button class="key inv" data-insert="asinh(">asinh</button>
+      <button class="key inv" data-insert="acosh(">acosh</button>
+
+      <!-- Logs / exp / roots -->
+      <button class="key func" data-insert="ln(">ln</button>
+      <button class="key func" data-insert="log(">log</button>
+      <button class="key func" data-insert="exp(">e<sup>x</sup></button>
+      <button class="key func" data-insert="sqrt(">&radic;</button>
+      <button class="key func" data-insert="cbrt(">&#8731;</button>
+
+      <!-- Powers / percent / misc -->
+      <button class="key func" data-insert="^">x<sup>y</sup></button>
+      <button class="key func" data-insert="10^">10<sup>x</sup></button>
+      <button class="key func" data-insert="!">x!</button>
+      <button class="key func" data-insert="abs(">|x|</button>
+      <button class="key func" data-insert="%">%</button>
+
+      <!-- Combinatorics / sequences -->
+      <button class="key func" data-insert="npr(">nPr</button>
+      <button class="key func" data-insert="ncr(">nCr</button>
+      <button class="key func" data-insert="sum(">&sum;</button>
+      <button class="key func" data-insert="prod(">&prod;</button>
+      <button class="key func" data-insert="lim(">lim</button>
+
+      <!-- Constants -->
+      <button class="key const" data-insert="pi">&pi;</button>
+      <button class="key const" data-insert="e">e</button>
+      <button class="key const" data-insert="tau">&tau;</button>
+      <button class="key const" data-insert="inf">&infin;</button>
+      <button class="key const" data-insert="atanh(">atanh</button>
+    </div>
+
+    <!-- ===== Basic numpad (5 columns) ===== -->
+    <div class="basic-pad">
+      <!-- Row 1: memory + clear -->
+      <button class="key mem" data-action="mc">MC</button>
+      <button class="key mem" data-action="mr">MR</button>
+      <button class="key mem" data-action="mplus">M+</button>
+      <button class="key mem" data-action="mminus">M&minus;</button>
+      <button class="key util" data-action="clear">C</button>
+
+      <!-- Row 2: utilities + divide -->
+      <button class="key util" data-action="back">&#9003;</button>
+      <button class="key util" data-action="paren">(</button>
+      <button class="key util" data-action="paren2">)</button>
+      <button class="key num" data-insert=".">.</button>
+      <button class="key op" data-insert="/">&divide;</button>
+
+      <!-- Row 3: 7 8 9 + mul -->
+      <button class="key num" data-insert="7">7</button>
+      <button class="key num" data-insert="8">8</button>
+      <button class="key num" data-insert="9">9</button>
+      <button class="key num" data-insert="00">00</button>
+      <button class="key op" data-insert="*">&times;</button>
+
+      <!-- Row 4: 4 5 6 + minus -->
+      <button class="key num" data-insert="4">4</button>
+      <button class="key num" data-insert="5">5</button>
+      <button class="key num" data-insert="6">6</button>
+      <button class="key num" data-insert="0">0</button>
+      <button class="key op" data-insert="-">&minus;</button>
+
+      <!-- Row 5: 1 2 3 + plus + equals -->
+      <button class="key num" data-insert="1">1</button>
+      <button class="key num" data-insert="2">2</button>
+      <button class="key num" data-insert="3">3</button>
+      <button class="key op" data-insert="+">+</button>
+      <button class="key equals" data-action="equals">=</button>
+    </div>
+  </section>
+</main>
+
+<!-- History -->
+<aside class="history" aria-label="Calculation history">
+  <div class="history-head">
+    <h2>History</h2>
+    <button class="clear-history" id="clearHistory" title="Clear history">Clear</button>
+  </div>
+  <ul id="historyList" class="history-list">
+    <li class="history-empty">Your calculations will appear here.</li>
+  </ul>
+</aside>
+
+<div id="toast" class="toast" role="status"></div>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
