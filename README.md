@@ -14,22 +14,33 @@ A striking, fully-functional **Advanced Scientific Calculator** built with **Pyt
 - **Logarithms:** `ln` (natural), `log` (base-10), `exp`, `10^x`
 - **Roots:** `sqrt`, `cbrt`
 - **Factorial:** `x!` (e.g. `5!`), **Permutations / Combinations:** `nPr`, `nCr`
+- **Sequence operators:** `sum(expr, a, b)`, `prod(expr, a, b)`, and numerical `lim(expr, x0, approach, direction)`
 - **Constants:** `pi`, `e`, `tau`, `inf`
 - **Absolute value:** `|x|` via `abs()`
 - **Degree / Radian mode** toggle (affects all trig functions)
 - **Implicit multiplication:** `2pi`, `3(4+1)`, `2sin(30)`
 - **Error handling:** divide-by-zero, domain errors, malformed expressions — all surfaced cleanly
 
+### Number Formats (NEW)
+After computing a result, tap any format button in the format bar to convert it instantly:
+- **DMS** — degrees / minutes / seconds (`45.5` → `45°30'0"`)
+- **FRAC** — reduced fraction via continued fractions (`0.5` → `1/2`)
+- **HEX / OCT / BIN** — base-N conversion (`255` → `FF` / `377` / `11111111`)
+- **ROMAN** — Roman numerals (`2024` → `MMXXIV`)
+
 ### UI
 - Animated **aurora background** + live **particle constellation**
-- **Glassmorphism** calculator shell with neon accent gradients
-- Smart **display** with live expression + rainbow-gradient result
-- Full scientific **keypad** (6-column grid)
+- **Glassmorphism** calculator shell with neon accent gradients and gradient borders
+- Smart **display** with live expression + rainbow-gradient result and inner glow
+- **Redesigned keypad** — a clean scientific pad (5-column grid) alongside a phone-style basic numpad
+- Color-coded key groups: teal (functions), amber (inverse), cyan (constants), pink (memory), yellow (utilities), blue (operators)
+- **Format bar** with DMS / FRAC / HEX / OCT / BIN / ROMAN conversion buttons
 - **DEG / RAD** mode switch
 - **Memory** functions: `MC MR M+ M−`
 - Persistent **history** panel (saved to localStorage, click to reuse a result)
-- **Keyboard support** — type expressions directly
+- **Keyboard support** — type expressions directly; `Ctrl/Cmd+C` copies the expression
 - Press **=** to compute via Flask API (fetch)
+- Fully **responsive & scrollable** — works on desktop and mobile
 
 ---
 
@@ -68,8 +79,11 @@ Then open **http://localhost:5000** in your browser.
 | Square root | `sqrt(144)` |
 | Permutations ₈P₃ | `npr(8,3)` |
 | Combinations ₈C₃ | `ncr(8,3)` |
+| Sum of squares 1..5 | `sum(x^2, 1, 5)` → `55` |
 | Use π | `sin(pi/2)` or `2*pi` |
 | Modulo | `10%3` |
+| Convert 255 to hex | `255` → `=` → tap **HEX** → `FF` |
+| Convert 0.5 to fraction | `0.5` → `=` → tap **FRAC** → `1/2` |
 | Store 5 in memory | `5` → `M+`, then `MR` to recall |
 
 Switch **DEG / RAD** from the top-right toggle.
@@ -80,23 +94,23 @@ Switch **DEG / RAD** from the top-right toggle.
 
 ```
 Advance-Scientific-Calculator-cc/
-├── app.py                 # Calculator engine (parser) + Flask web server
+├── app.py                 # Calculator engine (parser) + Flask web server + format API
 ├── requirements.txt       # Python dependencies
 ├── README.md
 ├── templates/
-│   └── index.html         # Calculator UI markup
+│   └── index.html         # Calculator UI markup (keypad, format bar, display)
 └── static/
     ├── css/
-    │   └── style.css      # Glassmorphism/neon theme
+    │   └── style.css      # Glassmorphism/neon theme + responsive layout
     └── js/
-        └── app.js         # Keypad logic, history, fetch API, particles
+        └── app.js         # Keypad logic, history, format calls, particles
 ```
 
 ---
 
 ## 🔌 API
 
-The calculator exposes a single calculation endpoint.
+The calculator exposes two endpoints.
 
 **`POST /api/calculate`**
 ```json
@@ -111,7 +125,16 @@ Response (error):
 { "success": false, "error": "Math error: division by zero" }
 ```
 
-`GET /` serves the UI · `GET /api/health` returns `{ "status": "ok" }`.
+**`POST /api/format`** — convert a number into DMS / fraction / base-N / Roman
+```json
+{ "number": 255, "format": "hex", "deg": false }
+```
+Response:
+```json
+{ "success": true, "format": "hex", "formatted": "FF", "original": 255.0 }
+```
+
+`GET /` serves the UI · `GET /api/health` returns `{ "status": "ok", "engine": "v1.0" }`.
 
 ---
 
@@ -134,7 +157,7 @@ This guarantees that arbitrary code can **never** be executed through the calcul
 
 ## 🎨 Design
 
-- **Palette:** deep-space navy backdrop with teal `#5eead4`, violet `#a78bfa`, and pink `#f9a8d4` accents.
+- **Palette:** deep-space navy backdrop with teal `#5eead4`, violet `#a78bfa`, cyan `#67e8f9`, and pink `#f9a8d4` accents.
 - **Typography:** `Orbitron` for headings/results, `JetBrains Mono` for expressions, `Outfit` for body.
 - **Motion:** floating aurora blobs + interactive particle network canvas + ripple feedback on every key.
 
@@ -143,3 +166,11 @@ This guarantees that arbitrary code can **never** be executed through the calcul
 ## 📝 License
 
 MIT — free to use, modify, and share. Built as a demonstration of a safe Python math engine paired with an eye-catching web front end.
+
+---
+
+<div align="center">
+
+### Made with ❤️ by **Raheel Nadeem**
+
+</div>
