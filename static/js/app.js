@@ -726,6 +726,21 @@ Particle background (unchanged)
 })();
 
 /* ============================================================
+Quick Reference — click to insert expression
+============================================================ */
+document.querySelectorAll('.qr-grid li').forEach(li => {
+  li.addEventListener('click', () => {
+    const fn = li.querySelector('.qr-fn').textContent;
+    // Convert display notation back to actual input syntax
+    const input = fn.replace('²', '^2').replace('³', '^3');
+    exprEl.textContent = input;
+    resEl.textContent = ' ';
+    display.classList.remove('error');
+    showToast('Loaded — press = to compute');
+  });
+});
+
+/* ============================================================
 Initialisation (must be last — all DOM refs resolved)
 ============================================================ */
 setMode(true);

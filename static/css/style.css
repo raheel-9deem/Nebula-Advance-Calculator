@@ -609,6 +609,55 @@ body {
 /* history actions + edit button */
 .history-actions { display: flex; gap: 6px; }
 
+/* ---------- Quick Reference panel ---------- */
+.quick-ref {
+  margin-top: 14px;
+  border-top: 1px solid var(--stroke);
+  padding-top: 12px;
+}
+.qr-head {
+  font-family: "Orbitron", sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 10px;
+}
+.qr-grid {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+.qr-grid li {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--glass-2);
+  border: 1px solid var(--stroke);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .2s;
+}
+.qr-grid li:hover {
+  border-color: var(--stroke-strong);
+  background: rgba(94,234,212,.08);
+  box-shadow: 0 0 12px rgba(94,234,212,.12);
+}
+.qr-fn {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  color: var(--accent-4);
+  line-height: 1.3;
+}
+.qr-desc {
+  font-family: "Outfit", sans-serif;
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
 /* ---------- Light theme ---------- */
 body.theme-light {
   --bg-0: #eef2f8;
