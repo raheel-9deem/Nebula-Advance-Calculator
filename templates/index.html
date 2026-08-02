@@ -28,11 +28,33 @@
         <p class="tag">Advanced Scientific Calculator</p>
       </div>
     </div>
-    <div class="mode-switch" role="group" aria-label="Angle mode">
-      <button id="modeDeg" class="mode-btn active" data-deg="true">DEG</button>
-      <button id="modeRad" class="mode-btn" data-deg="false">RAD</button>
+    <div class="header-actions">
+      <button id="voiceBtn" class="icon-btn" title="Voice input" aria-label="Voice input">&#127908;</button>
+      <button id="graphBtn" class="icon-btn" title="Graph plotter" aria-label="Graph plotter">&#9650;</button>
+      <button id="toolsBtn" class="icon-btn" title="Tools" aria-label="Tools">&#9881;</button>
+      <div class="mode-switch" role="group" aria-label="Angle mode">
+        <button id="modeDeg" class="mode-btn active" data-deg="true">DEG</button>
+        <button id="modeRad" class="mode-btn" data-deg="false">RAD</button>
+      </div>
+      <button id="themeBtn" class="icon-btn" title="Toggle theme" aria-label="Toggle theme">&#9789;</button>
     </div>
   </header>
+
+  <!-- Graph panel (collapsible) -->
+  <section class="graph-panel" id="graphPanel" hidden>
+    <div class="graph-head">
+      <h2 class="panel-title">Graph · y = f(x)</h2>
+      <div class="graph-controls">
+        <input id="graphExpr" class="graph-input" type="text" placeholder="sin(x)" value="sin(x)" />
+        <input id="graphXMin" class="graph-num" type="number" value="-6.28" step="0.01" title="x min" />
+        <input id="graphXMax" class="graph-num" type="number" value="6.28" step="0.01" title="x max" />
+        <button id="graphPlot" class="mini-btn">Plot</button>
+        <label class="graph-deg"><input type="checkbox" id="graphDegState" /> DEG</label>
+      </div>
+    </div>
+    <canvas id="graph" class="graph-canvas" width="780" height="320"></canvas>
+    <p class="graph-hint" id="graphHint">Scroll to zoom · drag to pan · hover to read (x, y)</p>
+  </section>
 
   <!-- Display -->
   <section class="display" aria-live="polite">
@@ -49,7 +71,13 @@
     <button class="fmt-key" data-format="oct">OCT</button>
     <button class="fmt-key" data-format="bin">BIN</button>
     <button class="fmt-key" data-format="roman">ROMAN</button>
+    <button class="fmt-key" data-format="sci">SCI</button>
+    <button class="fmt-key" data-format="eng">ENG</button>
+    <button class="fmt-key" data-format="dec">DEC</button>
   </section>
+
+  <!-- Variable store hint -->
+  <section class="var-hint" id="varHint" hidden></section>
 
   <!-- Keypad -->
   <section class="keypad">
@@ -90,12 +118,33 @@
       <button class="key func" data-insert="prod(">&prod;</button>
       <button class="key func" data-insert="lim(">lim</button>
 
+      <!-- Calculus -->
+      <button class="key tool" data-insert="diff(">diff</button>
+      <button class="key tool" data-insert="integrate(">int</button>
+      <button class="key tool" data-insert="mean(">mean</button>
+      <button class="key tool" data-insert="std(">std</button>
+      <button class="key tool" data-insert="gcd(">gcd</button>
+
+      <!-- Number theory / rounding -->
+      <button class="key tool" data-insert="lcm(">lcm</button>
+      <button class="key tool" data-insert="isprime(">prime?</button>
+      <button class="key tool" data-insert="floor(">floor</button>
+      <button class="key tool" data-insert="ceil(">ceil</button>
+      <button class="key tool" data-insert="round2(">round</button>
+
+      <!-- Variables + base-N + constants -->
+      <button class="key util" data-action="sto">sto</button>
+      <button class="key util" data-action="recall">recall</button>
+      <button class="key util" data-insert="0x">0x</button>
+      <button class="key util" data-insert="0b">0b</button>
+      <button class="key util" data-insert="0o">0o</button>
+
       <!-- Constants -->
       <button class="key const" data-insert="pi">&pi;</button>
       <button class="key const" data-insert="e">e</button>
       <button class="key const" data-insert="tau">&tau;</button>
-      <button class="key const" data-insert="inf">&infin;</button>
-      <button class="key const" data-insert="atanh(">atanh</button>
+      <button class="key const" data-insert="phi">&phi;</button>
+      <button class="key inv" data-insert="atanh(">atanh</button>
     </div>
 
     <!-- ===== Basic numpad (5 columns) ===== -->
@@ -142,12 +191,123 @@
 <aside class="history" aria-label="Calculation history">
   <div class="history-head">
     <h2>History</h2>
-    <button class="clear-history" id="clearHistory" title="Clear history">Clear</button>
+    <div class="history-actions">
+      <button class="clear-history" id="exportHistory" title="Export as CSV" aria-label="Export history as CSV">CSV</button>
+      <button class="clear-history" id="clearHistory" title="Clear history">Clear</button>
+    </div>
   </div>
   <ul id="historyList" class="history-list">
     <li class="history-empty">Your calculations will appear here.</li>
   </ul>
+  <div class="vars-list" id="varsList" hidden>
+    <div class="vars-head">Stored Variables</div>
+    <ul id="varsEntries"></ul>
+  </div>
 </aside>
+
+<!-- Tools drawer (slides up from the bottom) -->
+<section class="tools-drawer" id="toolsDrawer" hidden>
+  <div class="tools-bar">
+    <div class="tools-tabs">
+      <button class="tools-tab active" data-tab="convert">Convert</button>
+      <button class="tools-tab" data-tab="currency">Currency</button>
+      <button class="tools-tab" data-tab="datetime">Date/Time</button>
+      <button class="tools-tab" data-tab="stats">Stats</button>
+      <button class="tools-tab" data-tab="solve">Solve</button>
+      <button class="tools-tab" data-tab="matrix">Matrix</button>
+      <button class="tools-tab" data-tab="base">Base</button>
+    </div>
+    <button class="tools-close" id="toolsClose" title="Close" aria-label="Close tools">&times;</button>
+  </div>
+
+  <!-- Convert -->
+  <div class="tools-pane active" data-pane="convert">
+    <div class="tools-row">
+      <select id="convCat" class="tools-select"></select>
+      <input id="convVal" class="tools-input" type="number" value="1" />
+      <select id="convFrom" class="tools-select"></select>
+      <span>&rarr;</span>
+      <select id="convTo" class="tools-select"></select>
+      <button id="convGo" class="mini-btn">Convert</button>
+    </div>
+    <div class="tool-result" id="convResult">&mdash;</div>
+  </div>
+
+  <!-- Currency -->
+  <div class="tools-pane" data-pane="currency">
+    <div class="tools-row">
+      <input id="curFrom" class="tools-input short" type="text" value="USD" maxlength="4" placeholder="FROM" />
+      <input id="curTo" class="tools-input short" type="text" value="EUR" maxlength="4" placeholder="TO" />
+      <input id="curAmt" class="tools-input" type="number" value="1" />
+      <button id="curGo" class="mini-btn">Convert</button>
+    </div>
+    <div class="tool-result" id="curResult">&mdash;</div>
+  </div>
+
+  <!-- Date/Time -->
+  <div class="tools-pane" data-pane="datetime">
+    <div class="tools-row">
+      <select id="dtOp" class="tools-select">
+        <option value="diff">Difference</option>
+        <option value="add">Add days</option>
+        <option value="weekday">Day of week</option>
+        <option value="age">Age</option>
+      </select>
+      <input id="dtA" class="tools-input" type="text" placeholder="YYYY-MM-DD" />
+      <input id="dtB" class="tools-input" type="text" placeholder="YYYY-MM-DD (or days)" />
+      <button id="dtGo" class="mini-btn">Compute</button>
+    </div>
+    <div class="tool-result" id="dtResult">&mdash;</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="tools-pane" data-pane="stats">
+    <div class="tools-row">
+      <input id="statData" class="tools-input wide" type="text" placeholder="e.g. 2,4,4,5,7,9" />
+      <button id="statGo" class="mini-btn">Stats</button>
+    </div>
+    <div class="tool-result" id="statResult">&mdash;</div>
+  </div>
+
+  <!-- Solve -->
+  <div class="tools-pane" data-pane="solve">
+    <div class="tools-row">
+      <select id="solveType" class="tools-select">
+        <option value="poly">Polynomial</option>
+        <option value="system">Linear system</option>
+      </select>
+      <input id="solveCoeffs" class="tools-input wide" type="text" placeholder="a,b,c  (e.g. 1,-3,2)" />
+      <button id="solveGo" class="mini-btn">Solve</button>
+    </div>
+    <div class="tool-result" id="solveResult">&mdash;</div>
+  </div>
+
+  <!-- Matrix -->
+  <div class="tools-pane" data-pane="matrix">
+    <div class="tools-row">
+      <select id="matOp" class="tools-select">
+        <option value="det">det</option>
+        <option value="inv">inv</option>
+        <option value="transpose">transpose</option>
+        <option value="mul">multiply</option>
+        <option value="add">add</option>
+      </select>
+      <textarea id="matA" class="tools-area" placeholder="Matrix A rows; e.g. 1,2;3,4"></textarea>
+      <textarea id="matB" class="tools-area" placeholder="Matrix B (for mul/add); e.g. 5,6;7,8"></textarea>
+      <button id="matGo" class="mini-btn">Compute</button>
+    </div>
+    <div class="tool-result" id="matResult">&mdash;</div>
+  </div>
+
+  <!-- Base -->
+  <div class="tools-pane" data-pane="base">
+    <div class="tools-row">
+      <input id="baseVal" class="tools-input wide" type="text" placeholder="0xFF / 255 / FF / 0b1010" />
+      <button id="baseGo" class="mini-btn">Convert</button>
+    </div>
+    <div class="tool-result" id="baseResult">&mdash;</div>
+  </div>
+</section>
 
 <div id="toast" class="toast" role="status"></div>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
